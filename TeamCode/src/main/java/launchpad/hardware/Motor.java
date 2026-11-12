@@ -64,6 +64,20 @@ public class Motor {
         motor.setVelocity(ticksPerSecond);
     }
 
+    /**
+     * Sets the velocity in radians per second.
+     * @param velocity The desired velocity measured in radians per second.
+     */
+    public void setAngularVelocity(double velocity) {
+        if (!velocityConfigured) {
+            throw new IllegalStateException("Cannot set velocity on a Motor that was not configured with velocity parameters. Use the MotorConfig constructor or the full 4-parameter constructor.");
+        }
+
+        double ticksPerSecond = velocity * (ticksPerRotation / (2 * Math.PI));
+
+        motor.setVelocity(ticksPerSecond);
+    }
+
     public MotorEncoder getMotorEncoder() {
         return this.encoder;
     }
@@ -73,6 +87,18 @@ public class Motor {
      * @return The desired velocity measured in inches per second.
      */
     public double getVelocity() {
+        if (!velocityConfigured) {
+            throw new IllegalStateException("Cannot get velocity on a Motor that was not configured with velocity parameters. Use the MotorConfig constructor or the full 4-parameter constructor.");
+        }
+
+        return motor.getVelocity() / (ticksPerRotation / (wheelDiameter * Math.PI));
+    }
+
+    /**
+     * Gets the velocity in radians per second.
+     * @return The current velocity in radians per second.
+     */
+    public double getAngularVelocity() {
         if (!velocityConfigured) {
             throw new IllegalStateException("Cannot get velocity on a Motor that was not configured with velocity parameters. Use the MotorConfig constructor or the full 4-parameter constructor.");
         }
