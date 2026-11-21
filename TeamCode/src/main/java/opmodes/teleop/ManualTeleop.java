@@ -38,7 +38,7 @@ public class ManualTeleop extends TeleopBase {
 
     private Servo launchServo;
 
-    CRServo outtakeHeadingServo;
+    private float launchSpeed = 600;
 
     @Override
     protected void registerSubsystems() {
@@ -65,15 +65,9 @@ public class ManualTeleop extends TeleopBase {
         launchServo.setDirection(Servo.Direction.REVERSE);
         launchServo.setPosition(-1);
 
-        outtakeHeadingServo = hardwareMap.get(CRServo.class, "outtakeHeadingServo");
-
         mainGamepad.leftTrigger.onToggle((Boolean on) -> {
             intakeMotor.setPower(on ? 0.1 : 0);
             transferMotor.setPower(on ? -0.1 : 0);
-        });
-
-        mainGamepad.xButton.onToggle((Boolean on) -> {
-            outtakeMotor.setPower(on ? 0.1 : 0);
         });
 
         mainGamepad.rightTrigger.onPress(() -> {
@@ -87,15 +81,23 @@ public class ManualTeleop extends TeleopBase {
                    })
            ), true);
         });
+
+        secondaryGamepad.yButton.onPress(() -> {
+           launchSpeed += 100;
+        });
+        secondaryGamepad.aButton.onPress(() -> {
+            launchSpeed -= 100;
+        });
     }
 
     @Override
     public void loop() {
         super.loop();
 
-        outtakeHeadingServo.setPower(mainGamepad.dpadLeft.isPressed() ? -1 : mainGamepad.dpadRight.isPressed() ? 1 : 0);
+        outtakeMotor.setVelocity(mainGamepad.xButton.isToggled() ? launchSpeed : 0);
+//        outtakeHeadingServo.setPower(secondaryGamepad.rightJoystick.getX());
 
 //        outtake.setTargetHeading(Math.atan2(secondaryGamepad.leftJoystick.getY(), secondaryGamepad.leftJoystick.getX()));
-        driver.setRelativeVelocity(new MovementVector(mainGamepad.leftJoystick.getY(), mainGamepad.leftJoystick.getX(), mainGamepad.rightJoystick.getX()));
+        driver.setRelativeVelocity(new MovementVector(mainGamepad.leftJoystick.getY() * 28, mainGamepad.leftJoystick.getX() * 28, mainGamepad.rightJoystick.getX() * 28));
     }
 }
